@@ -7,6 +7,7 @@ on:
 
 permissions:
   contents: write
+  workflows: write
 
 jobs:
   import:
@@ -27,8 +28,6 @@ jobs:
           rm -rf .github
           mkdir -p .github/workflows
 
-          # Keep this as a disposable UI baseline. It is intentionally a separate
-          # application id so it can be installed beside the current KakaAnime APK.
           python3 - <<'PY'
           from pathlib import Path
           p = Path('app/build.gradle')
@@ -49,10 +48,8 @@ jobs:
           p.write_text(s)
           PY
 
-          # Remove Firebase-dependent settings files from the disposable baseline.
           grep -Rl --include='*.kt' -E 'com\.google\.firebase|Firebase\.' app/src/main/java | grep -v '/App.kt$' | xargs -r rm -f
 
-          # Use a dedicated build workflow on the baseline branch.
           cat > .github/workflows/android-build.yml <<'YAML'
           name: Dantotsu UI Baseline Build
           on:
