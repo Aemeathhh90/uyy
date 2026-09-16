@@ -106,10 +106,7 @@ private fun KakaAnimeApp() {
     MaterialTheme {
         Surface(modifier = Modifier.fillMaxSize(), color = Bg) {
             if (selectedAnime != null) {
-                AnimeDetailScreen(
-                    anime = selectedAnime!!,
-                    onBack = { selectedAnime = null }
-                )
+                AnimeDetailScreen(anime = selectedAnime!!, onBack = { selectedAnime = null })
             } else {
                 Scaffold(
                     containerColor = Bg,
@@ -118,10 +115,7 @@ private fun KakaAnimeApp() {
                     }
                 ) { padding ->
                     when (destination) {
-                        Destination.HOME -> HomeScreen(
-                            modifier = Modifier.padding(padding),
-                            onAnimeClick = { selectedAnime = it }
-                        )
+                        Destination.HOME -> HomeScreen(modifier = Modifier.padding(padding), onAnimeClick = { selectedAnime = it })
                         else -> PlaceholderScreen(
                             modifier = Modifier.padding(padding),
                             title = when (destination) {
@@ -171,7 +165,7 @@ private fun HomeTopBar() {
             Icon(Icons.Outlined.NotificationsNone, contentDescription = "Notifications", tint = Color.White)
         }
         IconButton(onClick = {}) {
-            Icon(Icons.filled.Search, contentDescription = "Search", tint = Color.White)
+            Icon(Icons.Filled.Search, contentDescription = "Search", tint = Color.White)
         }
     }
 }
@@ -184,29 +178,10 @@ private fun FeaturedSection(anime: Anime, onClick: () -> Unit) {
         colors = CardDefaults.cardColors(containerColor = SurfaceDark)
     ) {
         Box(modifier = Modifier.fillMaxSize()) {
-            AsyncImage(
-                model = anime.poster,
-                contentDescription = null,
-                modifier = Modifier.fillMaxSize().alpha(.32f),
-                contentScale = ContentScale.Crop
-            )
-            Box(
-                modifier = Modifier.fillMaxSize().background(
-                    Brush.verticalGradient(
-                        listOf(Color.Black.copy(alpha = .25f), Color.Black.copy(alpha = .58f), Bg.copy(alpha = .98f))
-                    )
-                )
-            )
-            Row(
-                modifier = Modifier.fillMaxSize().padding(18.dp),
-                verticalAlignment = Alignment.Bottom
-            ) {
-                AsyncImage(
-                    model = anime.poster,
-                    contentDescription = anime.title,
-                    modifier = Modifier.width(132.dp).height(190.dp).clip(RoundedCornerShape(18.dp)),
-                    contentScale = ContentScale.Crop
-                )
+            AsyncImage(model = anime.poster, contentDescription = null, modifier = Modifier.fillMaxSize().alpha(.32f), contentScale = ContentScale.Crop)
+            Box(modifier = Modifier.fillMaxSize().background(Brush.verticalGradient(listOf(Color.Black.copy(alpha = .25f), Color.Black.copy(alpha = .58f), Bg.copy(alpha = .98f)))))
+            Row(modifier = Modifier.fillMaxSize().padding(18.dp), verticalAlignment = Alignment.Bottom) {
+                AsyncImage(model = anime.poster, contentDescription = anime.title, modifier = Modifier.width(132.dp).height(190.dp).clip(RoundedCornerShape(18.dp)), contentScale = ContentScale.Crop)
                 Spacer(Modifier.width(16.dp))
                 Column(modifier = Modifier.weight(1f).padding(bottom = 4.dp)) {
                     Text("FEATURED", color = Purple, fontSize = 12.sp, fontWeight = FontWeight.Bold)
@@ -238,11 +213,7 @@ private fun SectionHeader(title: String, action: String) {
 
 @Composable
 private fun ContinueCard(anime: Anime, episode: Int, progress: Float, onClick: () -> Unit) {
-    Card(
-        modifier = Modifier.fillMaxWidth().clickable(onClick = onClick),
-        shape = RoundedCornerShape(20.dp),
-        colors = CardDefaults.cardColors(containerColor = SurfaceDark)
-    ) {
+    Card(modifier = Modifier.fillMaxWidth().clickable(onClick = onClick), shape = RoundedCornerShape(20.dp), colors = CardDefaults.cardColors(containerColor = SurfaceDark)) {
         Row(modifier = Modifier.padding(12.dp), verticalAlignment = Alignment.CenterVertically) {
             Box(modifier = Modifier.size(width = 116.dp, height = 74.dp).clip(RoundedCornerShape(14.dp))) {
                 AsyncImage(model = anime.poster, contentDescription = null, modifier = Modifier.fillMaxSize(), contentScale = ContentScale.Crop)
@@ -277,11 +248,9 @@ private fun AnimeCard(anime: Anime, onClick: () -> Unit) {
     Column(modifier = Modifier.width(124.dp).clickable(onClick = onClick)) {
         Box(modifier = Modifier.fillMaxWidth().height(176.dp).clip(RoundedCornerShape(16.dp))) {
             AsyncImage(model = anime.poster, contentDescription = anime.title, modifier = Modifier.fillMaxSize(), contentScale = ContentScale.Crop)
-            Surface(
-                color = Purple,
-                shape = RoundedCornerShape(topStart = 10.dp, bottomEnd = 10.dp),
-                modifier = Modifier.align(Alignment.BottomEnd)
-            ) { Text("★ ${anime.score}", color = Color.Black, fontSize = 11.sp, fontWeight = FontWeight.Bold, modifier = Modifier.padding(horizontal = 8.dp, vertical = 5.dp)) }
+            Surface(color = Purple, shape = RoundedCornerShape(topStart = 10.dp, bottomEnd = 10.dp), modifier = Modifier.align(Alignment.BottomEnd)) {
+                Text("★ ${anime.score}", color = Color.Black, fontSize = 11.sp, fontWeight = FontWeight.Bold, modifier = Modifier.padding(horizontal = 8.dp, vertical = 5.dp))
+            }
         }
         Spacer(Modifier.height(7.dp))
         Text(anime.title, color = Color.White, fontWeight = FontWeight.SemiBold, fontSize = 13.sp, maxLines = 1, overflow = TextOverflow.Ellipsis)
@@ -291,10 +260,7 @@ private fun AnimeCard(anime: Anime, onClick: () -> Unit) {
 
 @Composable
 private fun AnimeDetailScreen(anime: Anime, onBack: () -> Unit) {
-    LazyColumn(
-        modifier = Modifier.fillMaxSize(),
-        contentPadding = PaddingValues(bottom = 30.dp)
-    ) {
+    LazyColumn(modifier = Modifier.fillMaxSize(), contentPadding = PaddingValues(bottom = 30.dp)) {
         item {
             Box(modifier = Modifier.fillMaxWidth().height(390.dp)) {
                 AsyncImage(model = anime.poster, contentDescription = null, modifier = Modifier.fillMaxSize().alpha(.4f), contentScale = ContentScale.Crop)
@@ -344,10 +310,7 @@ private fun AnimeDetailScreen(anime: Anime, onBack: () -> Unit) {
 
 @Composable
 private fun EpisodeRow(episode: Int, watched: Boolean) {
-    Row(
-        modifier = Modifier.fillMaxWidth().padding(horizontal = 20.dp, vertical = 5.dp).clip(RoundedCornerShape(15.dp)).background(SurfaceDark).padding(13.dp),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
+    Row(modifier = Modifier.fillMaxWidth().padding(horizontal = 20.dp, vertical = 5.dp).clip(RoundedCornerShape(15.dp)).background(SurfaceDark).padding(13.dp), verticalAlignment = Alignment.CenterVertically) {
         Surface(shape = RoundedCornerShape(10.dp), color = if (watched) Purple.copy(alpha = .2f) else Color.White.copy(alpha = .08f), modifier = Modifier.size(42.dp)) {
             Box(contentAlignment = Alignment.Center) { Text("$episode", color = if (watched) Purple else Color.White, fontWeight = FontWeight.Bold) }
         }
@@ -362,10 +325,7 @@ private fun EpisodeRow(episode: Int, watched: Boolean) {
 
 @Composable
 private fun KakaBottomBar(destination: Destination, onDestination: (Destination) -> Unit) {
-    NavigationBar(
-        containerColor = Color(0xFF1B191C),
-        modifier = Modifier.navigationBarsPadding()
-    ) {
+    NavigationBar(containerColor = Color(0xFF1B191C), modifier = Modifier.navigationBarsPadding()) {
         val items = listOf(
             Triple(Destination.HOME, Icons.Filled.Home, "Home"),
             Triple(Destination.CALENDAR, Icons.Filled.CalendarMonth, "Calendar"),
@@ -374,12 +334,7 @@ private fun KakaBottomBar(destination: Destination, onDestination: (Destination)
             Triple(Destination.PROFILE, Icons.Filled.Person, "Profile")
         )
         items.forEach { (dest, icon, label) ->
-            NavigationBarItem(
-                selected = destination == dest,
-                onClick = { onDestination(dest) },
-                icon = { Icon(icon, contentDescription = label) },
-                label = { Text(label, fontSize = 10.sp) }
-            )
+            NavigationBarItem(selected = destination == dest, onClick = { onDestination(dest) }, icon = { Icon(icon, contentDescription = label) }, label = { Text(label, fontSize = 10.sp) })
         }
     }
 }
