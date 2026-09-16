@@ -1,0 +1,100 @@
+name: Import Dantotsu UI Baseline
+
+on:
+  push:
+    paths:
+      - .github/workflows/import-dantotsu-baseline.yml
+
+permissions:
+  contents: write
+
+jobs:
+  import:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout KakaAnime
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Import Dantotsu source into baseline branch
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euxo pipefail
+          git clone --depth 1 https://github.com/albertxiao/Dantotsu.git /tmp/dantotsu
+          git checkout -B baseline/dantotsu-ui
+          find . -mindepth 1 -maxdepth 1 ! -name .git -exec rm -rf {} +
+          cp -a /tmp/dantotsu/. .
+          rm -rf .github
+          mkdir -p .github/workflows
+
+          # Keep this as a disposable UI baseline. It is intentionally a separate
+          # application id so it can be installed beside the current KakaAnime APK.
+          python3 - <<'PY'
+          from pathlib import Path
+          p = Path('app/build.gradle')
+          s = p.read_text()
+          s = s.replace("applicationId \"ani.dantotsu\"", "applicationId \"com.kakaanime.app.baseline\"")
+          s = s.replace("    id 'com.google.gms.google-services'\n", "")
+          s = s.replace("    id 'com.google.firebase.crashlytics'\n", "")
+          s = s.replace("    implementation platform('com.google.firebase:firebase-bom:32.2.3')\n", "")
+          s = s.replace("    implementation 'com.google.firebase:firebase-analytics-ktx:21.3.0'\n", "")
+          s = s.replace("    implementation 'com.google.firebase:firebase-crashlytics-ktx:18.4.3'\n", "")
+          p.write_text(s)
+
+          p = Path('app/src/main/java/ani/dantotsu/App.kt')
+          s = p.read_text()
+          s = s.replace('import com.google.firebase.crashlytics.ktx.crashlytics\n', '')
+          s = s.replace('import com.google.firebase.ktx.Firebase\n', '')
+          s = s.replace('        Firebase.crashlytics.setCrashlyticsCollectionEnabled(!DisabledReports)\n', '')
+          p.write_text(s)
+          PY
+
+          # Remove Firebase-dependent settings files from the disposable baseline.
+          grep -Rl --include='*.kt' -E 'com\.google\.firebase|Firebase\.' app/src/main/java | grep -v '/App.kt$' | xargs -r rm -f
+
+          # Use the current project CI shape for the imported baseline.
+          cat > .github/workflows/android-build.yml <<'YAML'
+          name: Dantotsu UI Baseline Build
+          on:
+            push:
+              branches: [ baseline/dantotsu-ui ]
+            workflow_dispatch:
+          permissions:
+            contents: read
+          jobs:
+            build:
+              runs-on: ubuntu-latest
+              steps:
+                - name: Checkout
+                  uses: actions/checkout@v4
+                - name: Setup Java
+                  uses: actions/setup-java@v5
+                  with:
+                    distribution: temurin
+                    java-version: '17'
+                - name: Build debug APK
+                  run: ./gradlew :app:assembleDebug --stacktrace
+                - name: Upload baseline APK
+                  uses: actions/upload-artifact@v4
+                  with:
+                    name: KakaAnime-Dantotsu-UI-Baseline
+                    path: app/build/outputs/apk/debug/app-debug.apk
+          YAML
+
+          cat > KAKA_BASELINE.md <<'MD'
+          # KakaAnime Dantotsu UI Baseline
+
+          Temporary baseline branch: `baseline/dantotsu-ui`.
+
+          Purpose: use the Dantotsu implementation as a visual/interaction baseline for Home and Anime Detail while we progressively remove unrelated KakaAnime-incompatible features.
+
+          This branch is for development/testing only. Dantotsu is GPLv3 and its upstream README contains a warning about app-store distribution; review the license and upstream notice before any redistribution. See the upstream README in this branch.
+          MD
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git commit -m "chore: import Dantotsu as temporary UI baseline"
+          git push --force-with-lease origin baseline/dantotsu-ui
