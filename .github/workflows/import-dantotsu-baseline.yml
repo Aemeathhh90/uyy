@@ -18,14 +18,12 @@ jobs:
           fetch-depth: 0
 
       - name: Import Dantotsu source into baseline branch
-        env:
-          GH_TOKEN: ${{ github.token }}
         run: |
           set -euxo pipefail
           git clone --depth 1 https://github.com/albertxiao/Dantotsu.git /tmp/dantotsu
           git checkout -B baseline/dantotsu-ui
           find . -mindepth 1 -maxdepth 1 ! -name .git -exec rm -rf {} +
-          cp -a /tmp/dantotsu/. .
+          rsync -a --exclude='.git' /tmp/dantotsu/ ./
           rm -rf .github
           mkdir -p .github/workflows
 
@@ -54,7 +52,7 @@ jobs:
           # Remove Firebase-dependent settings files from the disposable baseline.
           grep -Rl --include='*.kt' -E 'com\.google\.firebase|Firebase\.' app/src/main/java | grep -v '/App.kt$' | xargs -r rm -f
 
-          # Use the current project CI shape for the imported baseline.
+          # Use a dedicated build workflow on the baseline branch.
           cat > .github/workflows/android-build.yml <<'YAML'
           name: Dantotsu UI Baseline Build
           on:
