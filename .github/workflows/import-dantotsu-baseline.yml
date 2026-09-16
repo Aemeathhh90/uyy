@@ -7,7 +7,6 @@ on:
 
 permissions:
   contents: write
-  workflows: write
 
 jobs:
   import:
@@ -26,7 +25,6 @@ jobs:
           find . -mindepth 1 -maxdepth 1 ! -name .git -exec rm -rf {} +
           rsync -a --exclude='.git' /tmp/dantotsu/ ./
           rm -rf .github
-          mkdir -p .github/workflows
 
           python3 - <<'PY'
           from pathlib import Path
@@ -50,34 +48,6 @@ jobs:
 
           grep -Rl --include='*.kt' -E 'com\.google\.firebase|Firebase\.' app/src/main/java | grep -v '/App.kt$' | xargs -r rm -f
 
-          cat > .github/workflows/android-build.yml <<'YAML'
-          name: Dantotsu UI Baseline Build
-          on:
-            push:
-              branches: [ baseline/dantotsu-ui ]
-            workflow_dispatch:
-          permissions:
-            contents: read
-          jobs:
-            build:
-              runs-on: ubuntu-latest
-              steps:
-                - name: Checkout
-                  uses: actions/checkout@v4
-                - name: Setup Java
-                  uses: actions/setup-java@v5
-                  with:
-                    distribution: temurin
-                    java-version: '17'
-                - name: Build debug APK
-                  run: ./gradlew :app:assembleDebug --stacktrace
-                - name: Upload baseline APK
-                  uses: actions/upload-artifact@v4
-                  with:
-                    name: KakaAnime-Dantotsu-UI-Baseline
-                    path: app/build/outputs/apk/debug/app-debug.apk
-          YAML
-
           cat > KAKA_BASELINE.md <<'MD'
           # KakaAnime Dantotsu UI Baseline
 
@@ -85,7 +55,7 @@ jobs:
 
           Purpose: use the Dantotsu implementation as a visual/interaction baseline for Home and Anime Detail while we progressively remove unrelated KakaAnime-incompatible features.
 
-          This branch is for development/testing only. Dantotsu is GPLv3 and its upstream README contains a warning about app-store distribution; review the license and upstream notice before any redistribution. See the upstream README in this branch.
+          This branch is for development/testing only. Dantotsu is GPLv3 and its upstream README contains a warning about app-store distribution; review the license and upstream notice before any redistribution.
           MD
 
           git config user.name "github-actions[bot]"
