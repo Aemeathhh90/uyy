@@ -1,10 +1,8 @@
-name: Android Build
+name: Dantotsu UI Baseline Build
 
 on:
   push:
-    branches: [ main ]
-  pull_request:
-    branches: [ main ]
+    branches: [ baseline/dantotsu-ui ]
   workflow_dispatch:
 
 permissions:
@@ -21,14 +19,12 @@ jobs:
         with:
           distribution: temurin
           java-version: '17'
-      - name: Setup Gradle
-        uses: gradle/actions/setup-gradle@v4
-        with:
-          gradle-version: '8.11.1'
       - name: Build debug APK
-        run: gradle :app:assembleDebug --stacktrace
-      - name: Upload debug APK
+        run: |
+          chmod +x gradlew
+          ./gradlew :app:assembleDebug --stacktrace
+      - name: Upload baseline APK
         uses: actions/upload-artifact@v4
         with:
-          name: KakaAnime-debug
+          name: KakaAnime-Dantotsu-UI-Baseline
           path: app/build/outputs/apk/debug/app-debug.apk
