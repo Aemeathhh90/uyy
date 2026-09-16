@@ -20,7 +20,9 @@ jobs:
           distribution: temurin
           java-version: '17'
       - name: Build debug APK
-        run: ./gradlew :app:assembleDebug --stacktrace
+        run: |
+          chmod +x gradlew
+          ./gradlew :app:assembleDebug --stacktrace
       - name: Upload baseline APK
         uses: actions/upload-artifact@v4
         with:
